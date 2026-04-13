@@ -7,7 +7,7 @@ name = "allox"
 version = "0.1.0"
 description = "A reusable Codex-supervised framework for bootstrapping and maintaining AI-native product repositories."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.13"
 dependencies = []
 
 [project.scripts]

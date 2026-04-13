@@ -2,23 +2,45 @@
 
 ## Prerequisites
 
-- Python 3.9 or newer
+- `uv`
 - `git`
 - `codex`
 - `claude`
 - `gemini` if you want the full hidden-reviewer workflow
 
+`uv` will provision the pinned Python 3.13 interpreter for this repo when needed.
+
 ## Install methods
 
-Use one of:
+From PyPI after the first release:
 
 ```bash
-pipx install <git-url>
-uv tool install <git-url>
-python3 -m pip install -e .
+uv tool install allox
+```
+
+From Git before the first release:
+
+```bash
+uv tool install git+https://github.com/ryanlatham/allox
+```
+
+For local development from a checkout, prefer:
+
+```bash
+uv sync
+uv run allox doctor
 ```
 
 Then verify the machine:
+
+From a local checkout:
+
+```bash
+uv run allox doctor
+uv run allox doctor --online
+```
+
+From an installed tool:
 
 ```bash
 allox doctor

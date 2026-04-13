@@ -4,6 +4,7 @@ import json
 import shlex
 import shutil
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 
 from .pathing import ensure_directory
@@ -200,9 +201,8 @@ def _make_task_id(title: str) -> str:
     while "--" in slug:
         slug = slug.replace("--", "-")
     slug = slug or "task"
-    from datetime import datetime
 
-    return f"{datetime.utcnow().strftime('%Y%m%d-%H%M%S')}-{slug}"
+    return f"{datetime.now(UTC).strftime('%Y%m%d-%H%M%S')}-{slug}"
 
 
 def _latest_task_id(project_root: Path) -> str:

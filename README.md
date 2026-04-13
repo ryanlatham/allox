@@ -4,22 +4,33 @@
 
 ## Install
 
+From PyPI after the first release:
+
 ```bash
-pipx install <git-url>
+uv tool install allox
 ```
 
-Or for local development:
+From Git before the first release:
 
 ```bash
-python3 -m pip install -e .
+uv tool install git+https://github.com/ryanlatham/allox
+```
+
+For local development from a checkout:
+
+```bash
+uv sync
+uv run allox --help
 ```
 
 ## Quick start
 
+From a local checkout, prefix CLI commands with `uv run`. From an installed tool, call `allox` directly.
+
 ```bash
-allox doctor
-allox doctor --online
-allox new my-project --init-git
+uv run allox doctor
+uv run allox doctor --online
+uv run allox new my-project --init-git
 cd my-project
 ```
 
@@ -42,4 +53,4 @@ Then open the generated project in Codex and start with [PROMPTS/CODEX_PROJECT_S
 
 If a wrapper binary lives outside the current non-interactive `PATH`, `allox` will prepend the discovered parent directory for child commands automatically. `allox` is project-scoped and does not write user-level instruction files.
 
-See [docs/quickstart.md](/Users/ryan/Development/allox/docs/quickstart.md) and [docs/architecture.md](/Users/ryan/Development/allox/docs/architecture.md) for more detail.
+See [docs/install.md](/Users/ryan/Development/allox/docs/install.md), [docs/development.md](/Users/ryan/Development/allox/docs/development.md), [docs/publishing.md](/Users/ryan/Development/allox/docs/publishing.md), [docs/quickstart.md](/Users/ryan/Development/allox/docs/quickstart.md), and [docs/architecture.md](/Users/ryan/Development/allox/docs/architecture.md) for more detail.
