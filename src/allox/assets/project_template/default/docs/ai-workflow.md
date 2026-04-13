@@ -2,14 +2,18 @@
 
 This project uses `allox` to keep Codex as the only visible runtime while still enabling hidden reviewer lanes.
 
+This document is Codex-facing operational guidance, not a human quickstart.
+
 ## Workflow
 
 1. Read `AGENTS.md`.
-2. Bootstrap a task with `python3 scripts/ai/bootstrap_task.py --title "<task title>"`.
-3. Draft the task plan, then run the plan gate before implementation.
+2. Bootstrap a task with `allox project bootstrap-task --project . --title "<task title>"`.
+3. Draft the task plan, then run `allox project plan-gate --project .` before implementation.
 4. Implement milestone by milestone.
-5. After each non-trivial milestone, run deterministic checks and then `python3 scripts/ai/milestone_gate.py`.
-6. Before declaring the task done, run `python3 scripts/ai/closeout.py` so the final gate writes durable artifacts and cleans temporary files.
+5. After each non-trivial milestone, run deterministic checks and then `allox project milestone-gate --project .`.
+6. Before declaring the task done, run `allox project closeout --project .` so the final gate writes durable artifacts and cleans temporary files.
+
+The repo-local scripts under `scripts/ai/` are thin shims around the same `allox project ...` commands and may be used when the installed CLI is not directly reachable.
 
 ## Important files
 
