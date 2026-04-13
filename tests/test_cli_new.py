@@ -22,7 +22,7 @@ class CliNewTests(unittest.TestCase):
             self.assertEqual(0, exit_code)
             self.assertTrue((project_root / ".allox" / "manifest.json").exists())
             self.assertTrue((project_root / "AGENTS.md").exists())
-            self.assertTrue((project_root / "scripts" / "ai" / "bootstrap_task.py").exists())
+            self.assertTrue((project_root / ".allox" / "scripts" / "bootstrap_task.py").exists())
 
     def test_new_defaults_to_current_working_directory(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -37,7 +37,7 @@ class CliNewTests(unittest.TestCase):
             self.assertEqual(0, exit_code)
             self.assertTrue((project_root / ".allox" / "manifest.json").exists())
             self.assertTrue((project_root / "AGENTS.md").exists())
-            self.assertTrue((project_root / "scripts" / "ai" / "bootstrap_task.py").exists())
+            self.assertTrue((project_root / ".allox" / "scripts" / "bootstrap_task.py").exists())
 
     def test_new_prints_human_minimal_next_steps(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -55,7 +55,7 @@ class CliNewTests(unittest.TestCase):
                 output,
             )
             self.assertNotIn("PROMPTS/CODEX_PROJECT_START.md", output)
-            self.assertNotIn("Read AGENTS.md and docs/ai-workflow.md.", output)
+            self.assertNotIn("Read AGENTS.md and allox/README.md.", output)
 
     def test_new_dry_run_reports_planned_changes_without_writing(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -100,7 +100,7 @@ class CliNewTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             project_root = Path(temp_dir) / "demo"
             project_root.mkdir(parents=True, exist_ok=True)
-            (project_root / "ai").write_text("this blocks a required directory\n", encoding="utf-8")
+            (project_root / "allox").write_text("this blocks a required directory\n", encoding="utf-8")
 
             stderr = io.StringIO()
             with redirect_stderr(stderr):

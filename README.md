@@ -55,4 +55,6 @@ The generated project contract lets Codex bootstrap tasks and run the managed `a
 
 If a wrapper binary lives outside the current non-interactive `PATH`, `allox` will prepend the discovered parent directory for child commands automatically. `allox` is project-scoped and does not write user-level instruction files.
 
+The default project template wires built-in Claude and Gemini reviewer lanes with `enabled: "auto"`, so reviewer gates follow `allox`'s resolver instead of relying on raw shell `PATH` checks.
+
 See [docs/install.md](/Users/ryan/Development/allox/docs/install.md), [docs/development.md](/Users/ryan/Development/allox/docs/development.md), [docs/publishing.md](/Users/ryan/Development/allox/docs/publishing.md), [docs/quickstart.md](/Users/ryan/Development/allox/docs/quickstart.md), and [docs/architecture.md](/Users/ryan/Development/allox/docs/architecture.md) for more detail.

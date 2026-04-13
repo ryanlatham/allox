@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+import allox.core.doctoring as doctoring
 from allox.core.doctoring import collect_doctor_report
 from allox.core.manifest import ProjectManifest, manifest_path
 
@@ -143,6 +144,35 @@ class CliDoctorTests(unittest.TestCase):
             self.assertEqual("not_authenticated", report["binaries"]["claude"]["auth_status"])
             self.assertFalse(report["binaries"]["gemini"]["online_ready"])
             self.assertEqual("probe_failed", report["binaries"]["gemini"]["auth_status"])
+
+    def test_doctor_online_uses_longer_timeout_for_gemini_probe(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            gemini_dir = temp_path / ".nvm" / "versions" / "node" / "v24.14.1" / "bin"
+            create_executable(
+                gemini_dir / "fake-node",
+                f"#!{shutil.which('python3')}\n"
+                "import sys, time\n"
+                "args = sys.argv\n"
+                "if '--version' in args:\n"
+                "    print('gemini 0.37.1')\n"
+                "elif '-p' in args or '--prompt' in args:\n"
+                "    time.sleep(0.1)\n"
+                "    print('OK')\n"
+                "else:\n"
+                "    raise SystemExit(1)\n",
+            )
+            create_executable(gemini_dir / "gemini", "#!/usr/bin/env fake-node\n")
+
+            with (
+                patch.dict(os.environ, {"PATH": temp_dir, "HOME": temp_dir}, clear=False),
+                patch.object(doctoring, "ONLINE_TIMEOUT_SECONDS", 0.05),
+                patch.object(doctoring, "GEMINI_ONLINE_TIMEOUT_SECONDS", 0.2),
+            ):
+                report = collect_doctor_report(online=True)
+
+            self.assertTrue(report["binaries"]["gemini"]["online_ready"])
+            self.assertEqual("ready", report["binaries"]["gemini"]["auth_status"])
 
 
 if __name__ == "__main__":  # pragma: no cover

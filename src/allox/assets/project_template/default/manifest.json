@@ -3,13 +3,13 @@
   "bundle_version": "0.1.1",
   "create_directories": [
     ".allox",
-    "ai/tasks",
-    "ai/plans",
-    "ai/progress",
-    "ai/packets",
-    "ai/reviews",
-    "ai/archive",
-    "ai/tmp"
+    ".allox/state/tasks",
+    ".allox/state/plans",
+    ".allox/state/progress",
+    ".allox/state/packets",
+    ".allox/state/reviews",
+    ".allox/state/archive",
+    ".allox/state/tmp"
   ],
   "assets": [
     {
@@ -96,88 +96,88 @@
       "ownership": "managed"
     },
     {
-      "path": "ai/config/project_commands.json",
+      "path": "allox/config/project_commands.json",
       "ownership": "project"
     },
     {
-      "path": "ai/config/review_redactions.json",
+      "path": "allox/config/review_redactions.json",
       "ownership": "project"
     },
     {
-      "path": "ai/prompts/plan_gate.md",
+      "path": "allox/prompts/plan_gate.md",
       "ownership": "managed"
     },
     {
-      "path": "ai/prompts/milestone_gate.md",
+      "path": "allox/prompts/milestone_gate.md",
       "ownership": "managed"
     },
     {
-      "path": "ai/prompts/final_gate.md",
+      "path": "allox/prompts/final_gate.md",
       "ownership": "managed"
     },
     {
-      "path": "ai/schemas/plan_feedback.schema.json",
+      "path": "allox/schemas/plan_feedback.schema.json",
       "ownership": "managed"
     },
     {
-      "path": "ai/schemas/review_findings.schema.json",
+      "path": "allox/schemas/review_findings.schema.json",
       "ownership": "managed"
     },
     {
-      "path": "ai/templates/TASK.md",
+      "path": "allox/templates/TASK.md",
       "ownership": "managed"
     },
     {
-      "path": "ai/templates/PLAN.md",
+      "path": "allox/templates/PLAN.md",
       "ownership": "managed"
     },
     {
-      "path": "ai/templates/PROGRESS.md",
+      "path": "allox/templates/PROGRESS.md",
       "ownership": "managed"
     },
     {
-      "path": "ai/templates/REVIEW_PACKET.md",
+      "path": "allox/templates/REVIEW_PACKET.md",
       "ownership": "managed"
     },
     {
-      "path": "ai/templates/ADJUDICATION.md",
+      "path": "allox/templates/ADJUDICATION.md",
       "ownership": "managed"
     },
     {
-      "path": "ai/templates/CLOSEOUT.md",
+      "path": "allox/templates/CLOSEOUT.md",
       "ownership": "managed"
     },
     {
-      "path": "docs/ai-workflow.md",
+      "path": "allox/README.md",
       "ownership": "managed",
       "render": true
     },
     {
-      "path": "scripts/ai/doctor.py",
+      "path": ".allox/scripts/doctor.py",
       "ownership": "managed"
     },
     {
-      "path": "scripts/ai/bootstrap_task.py",
+      "path": ".allox/scripts/bootstrap_task.py",
       "ownership": "managed"
     },
     {
-      "path": "scripts/ai/plan_gate.py",
+      "path": ".allox/scripts/plan_gate.py",
       "ownership": "managed"
     },
     {
-      "path": "scripts/ai/milestone_gate.py",
+      "path": ".allox/scripts/milestone_gate.py",
       "ownership": "managed"
     },
     {
-      "path": "scripts/ai/closeout.py",
+      "path": ".allox/scripts/closeout.py",
       "ownership": "managed"
     },
     {
-      "path": "scripts/ai/cleanup.py",
+      "path": ".allox/scripts/cleanup.py",
       "ownership": "managed"
     },
     {
-      "path": "scripts/ai/worktree_setup.py",
+      "path": ".allox/scripts/worktree_setup.py",
       "ownership": "managed"
     }
   ]

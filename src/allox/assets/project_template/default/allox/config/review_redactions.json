@@ -10,8 +10,8 @@
     ".venv/**",
     "build/**",
     "dist/**",
-    "ai/archive/**",
-    "ai/tmp/**"
+    ".allox/state/archive/**",
+    ".allox/state/tmp/**"
   ],
   "max_file_bytes": 200000
 }

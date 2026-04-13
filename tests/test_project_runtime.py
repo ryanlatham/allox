@@ -2,13 +2,16 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from allox.cli import main
+from allox.core.layout import project_layout
 from allox.core.subprocesses import resolve_binary
 
 from tests.helpers import create_executable
@@ -35,6 +38,7 @@ class ProjectRuntimeTests(unittest.TestCase):
     def test_runtime_packets_and_closeout_cover_full_three_gate_flow(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "demo"
+            layout = project_layout(root)
             self._create_project(root)
             git = self._init_git_repo(root)
             tracked = root / "story.txt"
@@ -57,7 +61,7 @@ class ProjectRuntimeTests(unittest.TestCase):
                 "print(f'{sys.argv[1]} checks ok')\n",
             )
 
-            config_path = root / "ai" / "config" / "project_commands.json"
+            config_path = layout.project_commands_file
             config = json.loads(config_path.read_text(encoding="utf-8"))
             config["checks"] = {
                 "milestone_gate": [{"command": [sys.executable, str(checker_script), "milestone"]}],
@@ -87,41 +91,42 @@ class ProjectRuntimeTests(unittest.TestCase):
             config_path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
 
             self.assertEqual(0, main(["project", "bootstrap-task", "--project", str(root), "--title", "Test runtime"]))
-            task_id = sorted((root / "ai" / "tasks").glob("*.md"))[-1].stem
+            task_id = sorted(layout.tasks_root.glob("*.md"))[-1].stem
             self.assertEqual(0, main(["project", "plan-gate", "--project", str(root), "--task-id", task_id]))
             self.assertEqual(0, main(["project", "milestone-gate", "--project", str(root), "--task-id", task_id]))
 
-            milestone_packet = (root / "ai" / "packets" / f"{task_id}-milestone_gate.md").read_text(encoding="utf-8")
+            milestone_packet = layout.packet_file(task_id, "milestone_gate").read_text(encoding="utf-8")
             self.assertIn("## Progress", milestone_packet)
             self.assertIn("### git diff --stat", milestone_packet)
             self.assertIn("### git diff --unified=3", milestone_packet)
             self.assertIn("api_key = [REDACTED]", milestone_packet)
             self.assertIn("milestone checks ok", milestone_packet)
 
-            tmp_file = root / "ai" / "tmp" / "scratch.txt"
+            tmp_file = layout.tmp_root / "scratch.txt"
             tmp_file.write_text("scratch", encoding="utf-8")
             self.assertEqual(0, main(["project", "closeout", "--project", str(root), "--task-id", task_id]))
 
-            final_packet = (root / "ai" / "packets" / f"{task_id}-final_gate.md").read_text(encoding="utf-8")
+            final_packet = layout.packet_file(task_id, "final_gate").read_text(encoding="utf-8")
             self.assertIn("## Prior Reviews", final_packet)
             self.assertIn("fake-milestone", final_packet)
             self.assertIn("final checks ok", final_packet)
-            self.assertTrue((root / "ai" / "reviews" / f"{task_id}-final_gate-fake-final.json").exists())
-            self.assertTrue((root / "ai" / "reviews" / f"{task_id}-final_gate-checks.txt").exists())
-            self.assertTrue((root / "ai" / "archive" / f"{task_id}.md").exists())
-            self.assertTrue((root / "ai" / "archive" / f"{task_id}-adjudication.md").exists())
+            self.assertTrue(layout.review_normalized_file(task_id, "final_gate", "fake-final").exists())
+            self.assertTrue(layout.review_checks_file(task_id, "final_gate").exists())
+            self.assertTrue(layout.archived_closeout_file(task_id).exists())
+            self.assertTrue(layout.archived_adjudication_file(task_id).exists())
             self.assertFalse(tmp_file.exists())
 
     def test_closeout_uses_legacy_top_level_checks_and_records_skipped_final_review(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "demo"
+            layout = project_layout(root)
             self._create_project(root)
             checker_script = create_executable(
                 Path(temp_dir) / "checker.py",
                 "#!/usr/bin/env python3\nprint('legacy checks ok')\n",
             )
 
-            config_path = root / "ai" / "config" / "project_commands.json"
+            config_path = layout.project_commands_file
             config = {
                 "schema_version": 1,
                 "notes": [],
@@ -134,14 +139,14 @@ class ProjectRuntimeTests(unittest.TestCase):
             config_path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
 
             self.assertEqual(0, main(["project", "bootstrap-task", "--project", str(root), "--title", "Legacy closeout"]))
-            task_id = sorted((root / "ai" / "tasks").glob("*.md"))[-1].stem
+            task_id = sorted(layout.tasks_root.glob("*.md"))[-1].stem
             self.assertEqual(0, main(["project", "closeout", "--project", str(root), "--task-id", task_id]))
 
-            checks_output = (root / "ai" / "reviews" / f"{task_id}-final_gate-checks.txt").read_text(encoding="utf-8")
-            skip_note = (root / "ai" / "reviews" / f"{task_id}-final_gate-skipped.txt").read_text(encoding="utf-8")
+            checks_output = layout.review_checks_file(task_id, "final_gate").read_text(encoding="utf-8")
+            skip_note = layout.review_skip_file(task_id, "final_gate").read_text(encoding="utf-8")
             self.assertIn("legacy checks ok", checks_output)
             self.assertIn("No final_gate reviewers are enabled", skip_note)
-            self.assertTrue((root / "ai" / "archive" / f"{task_id}.md").exists())
+            self.assertTrue(layout.archived_closeout_file(task_id).exists())
 
     def test_generated_shim_calls_installed_allox(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -158,7 +163,7 @@ class ProjectRuntimeTests(unittest.TestCase):
             env["ALLOX_BIN"] = str(fake_allox)
             env["RECORD_PATH"] = str(record_path)
             subprocess.run(
-                [sys.executable, str(root / "scripts" / "ai" / "bootstrap_task.py"), "--title", "Shim test"],
+                [sys.executable, str(root / ".allox" / "scripts" / "bootstrap_task.py"), "--title", "Shim test"],
                 cwd=root,
                 env=env,
                 check=True,
@@ -168,6 +173,54 @@ class ProjectRuntimeTests(unittest.TestCase):
             self.assertEqual("--project", args[2])
             self.assertEqual(str(root.resolve()), args[3])
             self.assertEqual("--title", args[4])
+
+    def test_auto_enabled_reviewers_use_allox_binary_discovery(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "demo"
+            layout = project_layout(root)
+            self._create_project(root)
+
+            gemini_dir = Path(temp_dir) / ".nvm" / "versions" / "node" / "v24.14.1" / "bin"
+            create_executable(
+                gemini_dir / "fake-node",
+                f"#!{shutil.which('python3')}\n"
+                "import json, sys\n"
+                "args = sys.argv\n"
+                "if '--version' in args:\n"
+                "    print('gemini 0.37.1')\n"
+                "elif '-p' in args or '--prompt' in args:\n"
+                "    print(json.dumps({'summary': 'gemini ok', 'findings': []}))\n"
+                "else:\n"
+                "    raise SystemExit(1)\n",
+            )
+            create_executable(gemini_dir / "gemini", "#!/usr/bin/env fake-node\n")
+
+            config_path = layout.project_commands_file
+            config = json.loads(config_path.read_text(encoding="utf-8"))
+            config["reviewers"]["plan_gate"] = [
+                {
+                    "name": "gemini-plan-critic",
+                    "provider": "gemini",
+                    "enabled": "auto",
+                    "command": ["gemini", "-p", "{prompt}"],
+                }
+            ]
+            config["reviewers"]["milestone_gate"] = []
+            config["reviewers"]["final_gate"] = []
+            config_path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
+
+            with patch.dict(os.environ, {"HOME": temp_dir, "PATH": "/usr/bin:/bin"}, clear=False):
+                self.assertEqual(
+                    0,
+                    main(["project", "bootstrap-task", "--project", str(root), "--title", "Auto reviewers"]),
+                )
+                task_id = sorted(layout.tasks_root.glob("*.md"))[-1].stem
+                self.assertEqual(0, main(["project", "plan-gate", "--project", str(root), "--task-id", task_id]))
+
+            review_path = layout.review_normalized_file(task_id, "plan_gate", "gemini-plan-critic")
+            self.assertTrue(review_path.exists())
+            payload = json.loads(review_path.read_text(encoding="utf-8"))
+            self.assertEqual("gemini ok", payload["summary"])
 
 
 if __name__ == "__main__":  # pragma: no cover

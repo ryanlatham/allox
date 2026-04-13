@@ -27,35 +27,40 @@ The default project template is designed so the generated repo is self-describin
 - `.agents/skills/*/SKILL.md`
   Repo-local Codex skills that keep the workflow explicit and inspectable. `managed`.
 
-## Workflow state under `ai/`
+## Visible allox contract under `allox/`
 
-- `ai/config/project_commands.json`
-  Project-owned command wiring for deterministic checks and reviewer commands. New projects get gate-specific placeholders for `plan_gate`, `milestone_gate`, and `final_gate`.
-- `ai/config/review_redactions.json`
+- `allox/README.md`
+  Codex-facing operational guidance for the generated workflow. `managed`.
+- `allox/config/project_commands.json`
+  Project-owned command wiring for deterministic checks and reviewer commands. New projects get gate-specific placeholders for `plan_gate`, `milestone_gate`, and `final_gate`, with built-in Claude and Gemini lanes set to `enabled: "auto"`.
+- `allox/config/review_redactions.json`
   Project-owned packet exclusion and redaction rules.
-- `ai/prompts/*.md`
+- `allox/prompts/*.md`
   Prompt templates used by the runtime when invoking reviewer lanes. `managed`.
-- `ai/schemas/*.json`
+- `allox/schemas/*.json`
   Shared normalized output shapes for reviewer findings. `managed`.
-- `ai/templates/TASK.md`, `PLAN.md`, `PROGRESS.md`
+- `allox/templates/TASK.md`, `PLAN.md`, `PROGRESS.md`
   Durable task-state templates used by `bootstrap-task`. `managed`.
-- `ai/templates/ADJUDICATION.md`, `CLOSEOUT.md`
+- `allox/templates/ADJUDICATION.md`, `CLOSEOUT.md`
   Durable closeout artifacts rendered by `allox project closeout`. `managed`.
-- `ai/tasks/`, `ai/plans/`, `ai/progress/`
+
+## Hidden runtime state under `.allox/`
+
+- `.allox/state/tasks/`, `.allox/state/plans/`, `.allox/state/progress/`
   Durable task records created per task.
-- `ai/packets/`
+- `.allox/state/packets/`
   Generated plan, milestone, and final review packets.
-- `ai/reviews/`
+- `.allox/state/reviews/`
   Check transcripts, raw reviewer output, normalized findings, and skip notes.
-- `ai/archive/`
+- `.allox/state/archive/`
   Final closeout and adjudication artifacts for completed tasks.
-- `ai/tmp/`
+- `.allox/state/tmp/`
   Temporary prompt files and worktree metadata. Cleaned during closeout and manual cleanup.
 
 ## Internal Runtime Entry Points
 
 - No dedicated kickoff prompt file is required in generated projects. Codex should start from the developer's normal request flow using `AGENTS.md` and the repo-local Codex defaults.
-- `scripts/ai/*.py`
+- `.allox/scripts/*.py`
   Thin Python shims for the internal workflow that call the installed `allox project ...` commands. They are convenience wrappers, not the canonical onboarding path. `managed`.
 
 ## Framework metadata
