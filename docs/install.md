@@ -55,6 +55,7 @@ Some standard installs, especially Node-based CLIs installed through `nvm`, work
 
 - `allox doctor` auto-discovers common install locations such as `~/.nvm/versions/node/*/bin/gemini`
 - `allox` prepends discovered runtime directories for child commands automatically, without modifying user-level instruction files
+- the default project template marks built-in reviewer lanes as `enabled: "auto"` so gate execution follows `allox` discovery instead of plain shell `PATH` checks
 
 If you prefer explicit overrides, you can still set `ALLOX_CODEX_BIN`, `ALLOX_CLAUDE_BIN`, or `ALLOX_GEMINI_BIN`.
 

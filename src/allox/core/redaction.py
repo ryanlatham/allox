@@ -16,8 +16,8 @@ DEFAULT_EXCLUDED_GLOBS = [
     ".venv/**",
     "build/**",
     "dist/**",
-    "ai/archive/**",
-    "ai/tmp/**",
+    ".allox/state/archive/**",
+    ".allox/state/tmp/**",
 ]
 
 SECRET_PATTERNS = [

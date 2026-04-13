@@ -84,13 +84,13 @@ class UpgradeMergeTests(unittest.TestCase):
             self.assertIn("new", conflict.read_text(encoding="utf-8"))
 
     def test_project_owned_files_are_preserved(self) -> None:
-        asset = AssetSpec(path="ai/config/project_commands.json", ownership="project")
-        bundle_v1 = FakeBundle("default", "0.1.0", (asset,), {"ai/config/project_commands.json": "{\"a\": 1}\n"})
-        bundle_v2 = FakeBundle("default", "0.2.0", (asset,), {"ai/config/project_commands.json": "{\"a\": 2}\n"})
+        asset = AssetSpec(path="allox/config/project_commands.json", ownership="project")
+        bundle_v1 = FakeBundle("default", "0.1.0", (asset,), {"allox/config/project_commands.json": "{\"a\": 1}\n"})
+        bundle_v2 = FakeBundle("default", "0.2.0", (asset,), {"allox/config/project_commands.json": "{\"a\": 2}\n"})
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             _, _ = scaffold_bundle(root, bundle_v1, {}, dry_run=False)
-            original = (root / "ai" / "config" / "project_commands.json").read_text(encoding="utf-8")
+            original = (root / "allox" / "config" / "project_commands.json").read_text(encoding="utf-8")
             manifest = self._manifest({})
             _, result = upgrade_project(
                 root,
@@ -100,8 +100,8 @@ class UpgradeMergeTests(unittest.TestCase):
                 dry_run=False,
                 write_conflicts=True,
             )
-            self.assertIn("ai/config/project_commands.json", result.skipped)
-            self.assertEqual(original, (root / "ai" / "config" / "project_commands.json").read_text(encoding="utf-8"))
+            self.assertIn("allox/config/project_commands.json", result.skipped)
+            self.assertEqual(original, (root / "allox" / "config" / "project_commands.json").read_text(encoding="utf-8"))
 
     def test_upgrade_preserves_existing_markdown_bootstrapped_via_append(self) -> None:
         asset = AssetSpec(path="CLAUDE.md", ownership="managed")

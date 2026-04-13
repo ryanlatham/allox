@@ -5,6 +5,7 @@ from pathlib import Path
 
 from .assets import AssetBundle, AssetSpec
 from .hashing import sha256_text
+from .layout import project_layout
 from .manifest import ManagedFileRecord, ProjectManifest, utc_now
 from .markers import MarkerError, extract_managed_block, extract_managed_body, replace_managed_block
 from .pathing import ensure_directory
@@ -260,7 +261,7 @@ def _write_conflict(
 ) -> None:
     if not write_conflicts or dry_run:
         return
-    conflict_path = project_root / ".allox" / "conflicts" / f"{relative_path}.allox.new"
+    conflict_path = project_layout(project_root).conflict_file(relative_path)
     conflict_path.parent.mkdir(parents=True, exist_ok=True)
     conflict_path.write_text(candidate_content, encoding="utf-8")
 

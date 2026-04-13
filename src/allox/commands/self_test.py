@@ -7,6 +7,7 @@ import tempfile
 from pathlib import Path
 
 from ..core.assets import load_project_template_bundle
+from ..core.layout import project_layout
 from ..core.manifest import ProjectManifest, manifest_path
 from ..core.upgrade import scaffold_bundle
 from ..version import __version__
@@ -19,8 +20,8 @@ REQUIRED_FILES = [
     "GEMINI.md",
     ".codex/config.toml",
     ".codex/README.md",
-    "docs/ai-workflow.md",
-    "scripts/ai/bootstrap_task.py",
+    "allox/README.md",
+    ".allox/scripts/bootstrap_task.py",
 ]
 
 
@@ -33,6 +34,7 @@ def run(args: argparse.Namespace) -> int:
     bundle = load_project_template_bundle()
     with tempfile.TemporaryDirectory(prefix="allox-self-test-") as temp_dir:
         root = Path(temp_dir) / "sample-project"
+        layout = project_layout(root)
         root.mkdir(parents=True, exist_ok=True)
         records, _ = scaffold_bundle(
             root,
@@ -63,7 +65,7 @@ def run(args: argparse.Namespace) -> int:
         project_args = argparse.Namespace(project=str(root), task_id=None, title="Test runtime")
         if run_bootstrap(project_args) != 0:
             return 1
-        task_id = sorted((root / "ai" / "tasks").glob("*.md"))[-1].stem
+        task_id = sorted(layout.tasks_root.glob("*.md"))[-1].stem
         if run_plan_gate(argparse.Namespace(project=str(root), task_id=task_id)) != 0:
             return 1
         if run_milestone_gate(argparse.Namespace(project=str(root), task_id=task_id)) != 0:
@@ -74,10 +76,10 @@ def run(args: argparse.Namespace) -> int:
             return 1
 
         required_runtime_outputs = [
-            root / "ai" / "reviews" / f"{task_id}-plan_gate-fake-plan.json",
-            root / "ai" / "reviews" / f"{task_id}-milestone_gate-fake-milestone.json",
-            root / "ai" / "archive" / f"{task_id}.md",
-            root / "ai" / "archive" / f"{task_id}-adjudication.md",
+            layout.review_normalized_file(task_id, "plan_gate", "fake-plan"),
+            layout.review_normalized_file(task_id, "milestone_gate", "fake-milestone"),
+            layout.archived_closeout_file(task_id),
+            layout.archived_adjudication_file(task_id),
         ]
         missing_runtime = [path.relative_to(root).as_posix() for path in required_runtime_outputs if not path.exists()]
         if missing_runtime:
@@ -91,6 +93,7 @@ def run(args: argparse.Namespace) -> int:
 
 
 def _configure_runtime_self_test(project_root: Path, temp_root: Path) -> int:
+    layout = project_layout(project_root)
     reviewer = temp_root / "reviewer.py"
     reviewer.write_text(
         "#!/usr/bin/env python3\n"
@@ -109,7 +112,7 @@ def _configure_runtime_self_test(project_root: Path, temp_root: Path) -> int:
     )
     checker.chmod(0o755)
 
-    config_path = project_root / "ai" / "config" / "project_commands.json"
+    config_path = layout.project_commands_file
     config = json.loads(config_path.read_text(encoding="utf-8"))
     config["checks"] = {
         "milestone_gate": [{"command": [sys.executable, str(checker), "milestone"]}],

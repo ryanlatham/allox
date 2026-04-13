@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
+from .layout import project_layout
 from .pathing import ensure_directory
 from .redaction import is_binary_file, is_excluded, load_redaction_config, redact_text
 from .reviews import normalize_review_output
@@ -35,20 +36,21 @@ class GateExecution:
 
 
 def bootstrap_task(project_root: Path, title: str | None = None) -> RuntimeResult:
+    layout = project_layout(project_root)
     task_title = title or "New task"
     task_id = _make_task_id(task_title)
     mapping = {"TASK_ID": task_id, "TASK_TITLE": task_title, "DATE": task_id.split("-")[0]}
 
-    task_path = project_root / "ai" / "tasks" / f"{task_id}.md"
-    plan_path = project_root / "ai" / "plans" / f"{task_id}.md"
-    progress_path = project_root / "ai" / "progress" / f"{task_id}.md"
+    task_path = layout.task_file(task_id)
+    plan_path = layout.plan_file(task_id)
+    progress_path = layout.progress_file(task_id)
 
     for template_name, destination in (
         ("TASK.md", task_path),
         ("PLAN.md", plan_path),
         ("PROGRESS.md", progress_path),
     ):
-        template_path = project_root / "ai" / "templates" / template_name
+        template_path = layout.runtime_template_file(template_name)
         content = render_runtime_text(template_path.read_text(encoding="utf-8"), mapping)
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_text(content, encoding="utf-8")
@@ -72,6 +74,7 @@ def milestone_gate(project_root: Path, task_id: str | None = None) -> RuntimeRes
 
 
 def closeout(project_root: Path, task_id: str | None = None) -> RuntimeResult:
+    layout = project_layout(project_root)
     resolved_task_id = task_id or _latest_task_id(project_root)
     execution = _execute_gate(
         project_root,
@@ -84,7 +87,7 @@ def closeout(project_root: Path, task_id: str | None = None) -> RuntimeResult:
     review_summary, findings_count = _build_review_summary(project_root, resolved_task_id)
     review_inputs = _build_review_inputs(project_root, resolved_task_id)
 
-    archive_dir = ensure_directory(project_root / "ai" / "archive")
+    archive_dir = ensure_directory(layout.archive_root)
     adjudication_path = archive_dir / f"{resolved_task_id}-adjudication.md"
     closeout_path = archive_dir / f"{resolved_task_id}.md"
 
@@ -98,7 +101,7 @@ def closeout(project_root: Path, task_id: str | None = None) -> RuntimeResult:
             f"- final review skipped by configuration: {execution.skipped_review_path.relative_to(project_root).as_posix()}"
         )
     else:
-        final_review_paths = sorted((project_root / "ai" / "reviews").glob(f"{resolved_task_id}-final_gate-*.json"))
+        final_review_paths = sorted(layout.reviews_root.glob(f"{resolved_task_id}-final_gate-*.json"))
         for review_path in final_review_paths:
             verification_lines.append(f"- final review: {review_path.relative_to(project_root).as_posix()}")
 
@@ -130,7 +133,7 @@ def closeout(project_root: Path, task_id: str | None = None) -> RuntimeResult:
     durable_paths = [
         path
         for path in execution.paths
-        if not Path(path).resolve().is_relative_to((project_root / "ai" / "tmp").resolve())
+        if not Path(path).resolve().is_relative_to(layout.tmp_root.resolve())
     ]
     return RuntimeResult(
         message=f"Closed out {resolved_task_id}",
@@ -143,8 +146,9 @@ def cleanup(project_root: Path) -> RuntimeResult:
 
 
 def worktree_setup(project_root: Path) -> RuntimeResult:
-    tmp_path = ensure_directory(project_root / "ai" / "tmp")
-    info_path = tmp_path / "worktree-setup.json"
+    layout = project_layout(project_root)
+    tmp_path = ensure_directory(layout.tmp_root)
+    info_path = layout.worktree_setup_file
     info = {
         "project_root": str(project_root),
         "tmp_dir": str(tmp_path),
@@ -206,7 +210,8 @@ def _make_task_id(title: str) -> str:
 
 
 def _latest_task_id(project_root: Path) -> str:
-    task_files = sorted((project_root / "ai" / "tasks").glob("*.md"))
+    layout = project_layout(project_root)
+    task_files = sorted(layout.tasks_root.glob("*.md"))
     if not task_files:
         raise RuntimeError("no task artifacts found; run bootstrap-task first")
     return task_files[-1].stem
@@ -219,10 +224,11 @@ def _build_packet(
     checks_path: Path | None = None,
     include_prior_reviews: bool = False,
 ) -> Path:
-    task_path = project_root / "ai" / "tasks" / f"{task_id}.md"
-    plan_path = project_root / "ai" / "plans" / f"{task_id}.md"
-    progress_path = project_root / "ai" / "progress" / f"{task_id}.md"
-    packet_path = project_root / "ai" / "packets" / f"{task_id}-{gate_name}.md"
+    layout = project_layout(project_root)
+    task_path = layout.task_file(task_id)
+    plan_path = layout.plan_file(task_id)
+    progress_path = layout.progress_file(task_id)
+    packet_path = layout.packet_file(task_id, gate_name)
     packet_path.parent.mkdir(parents=True, exist_ok=True)
 
     parts = [
@@ -279,7 +285,8 @@ def _collect_git_snapshot(project_root: Path) -> str:
 
 
 def _collect_changed_files(project_root: Path) -> list[str]:
-    config = load_redaction_config(project_root / "ai" / "config" / "review_redactions.json")
+    layout = project_layout(project_root)
+    config = load_redaction_config(layout.review_redactions_file)
     git = resolve_binary("git")
     changed_paths: list[str] = []
     if git:
@@ -306,7 +313,7 @@ def _collect_changed_files(project_root: Path) -> list[str]:
 
 
 def _collect_prior_review_summaries(project_root: Path, task_id: str) -> list[str]:
-    review_dir = project_root / "ai" / "reviews"
+    review_dir = project_layout(project_root).reviews_root
     summaries: list[str] = []
     for review_path in sorted(review_dir.glob(f"{task_id}-*.json")):
         try:
@@ -329,8 +336,9 @@ def _collect_prior_review_summaries(project_root: Path, task_id: str) -> list[st
 
 
 def _write_prompt(project_root: Path, task_id: str, gate_name: str, packet_path: Path) -> Path:
-    template_path = project_root / "ai" / "prompts" / f"{gate_name}.md"
-    prompt_path = project_root / "ai" / "tmp" / f"{task_id}-{gate_name}-prompt.md"
+    layout = project_layout(project_root)
+    template_path = layout.prompt_template_file(gate_name)
+    prompt_path = layout.tmp_root / f"{task_id}-{gate_name}-prompt.md"
     prompt_path.parent.mkdir(parents=True, exist_ok=True)
     content = render_runtime_text(
         template_path.read_text(encoding="utf-8"),
@@ -341,7 +349,7 @@ def _write_prompt(project_root: Path, task_id: str, gate_name: str, packet_path:
 
 
 def _load_project_commands(project_root: Path) -> dict[str, object]:
-    config_path = project_root / "ai" / "config" / "project_commands.json"
+    config_path = project_layout(project_root).project_commands_file
     return json.loads(config_path.read_text(encoding="utf-8"))
 
 
@@ -356,9 +364,10 @@ def _checks_for_gate(config: dict[str, object], gate_name: str) -> list[object]:
 
 
 def _run_checks(project_root: Path, task_id: str, gate_name: str) -> Path:
+    layout = project_layout(project_root)
     config = _load_project_commands(project_root)
     checks = _checks_for_gate(config, gate_name)
-    output_path = project_root / "ai" / "reviews" / f"{task_id}-{gate_name}-checks.txt"
+    output_path = layout.review_checks_file(task_id, gate_name)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     if not checks:
@@ -407,22 +416,23 @@ def _run_reviewers(
         if optional:
             return [], _write_skip_note(project_root, task_id, gate_name)
         raise RuntimeError(
-            f"no reviewers are configured for {gate_name}; update ai/config/project_commands.json before running reviewer gates"
+            f"no reviewers are configured for {gate_name}; update allox/config/project_commands.json before running reviewer gates"
         )
 
     reviewers = [
         reviewer
         for reviewer in list(gate_entries or [])
-        if isinstance(reviewer, dict) and reviewer.get("enabled")
+        if isinstance(reviewer, dict) and _reviewer_is_enabled(reviewer)
     ]
     if not reviewers:
         if optional:
             return [], _write_skip_note(project_root, task_id, gate_name)
         raise RuntimeError(
-            f"no reviewers are enabled for {gate_name}; update ai/config/project_commands.json before running reviewer gates"
+            f"no reviewers are enabled for {gate_name}; update allox/config/project_commands.json before running reviewer gates"
         )
 
     prompt_text = prompt_path.read_text(encoding="utf-8")
+    layout = project_layout(project_root)
     written: list[str] = []
     for reviewer in reviewers:
         name = str(reviewer.get("name") or "reviewer")
@@ -439,16 +449,33 @@ def _run_reviewers(
             raise RuntimeError(
                 f"reviewer {name} failed with exit code {raw_result.returncode}: {raw_result.stderr.strip()}"
             )
-        raw_path = project_root / "ai" / "reviews" / f"{task_id}-{gate_name}-{name}.raw.txt"
+        raw_path = layout.review_raw_file(task_id, gate_name, name)
         raw_path.write_text(raw_result.stdout, encoding="utf-8")
         normalized = normalize_review_output(raw_result.stdout, reviewer=name, gate=gate_name)
-        normalized_path = project_root / "ai" / "reviews" / f"{task_id}-{gate_name}-{name}.json"
+        normalized_path = layout.review_normalized_file(task_id, gate_name, name)
         normalized_path.write_text(
             json.dumps(normalized.to_dict(), indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
         )
         written.extend([str(raw_path), str(normalized_path)])
     return written, None
+
+
+def _reviewer_is_enabled(reviewer: dict[str, object]) -> bool:
+    enabled = reviewer.get("enabled")
+    if isinstance(enabled, bool):
+        return enabled
+    if isinstance(enabled, str):
+        normalized = enabled.strip().lower()
+        if normalized in {"false", "off", "no"}:
+            return False
+        if normalized in {"true", "on", "yes"}:
+            return True
+        if normalized == "auto":
+            provider = reviewer.get("provider")
+            if isinstance(provider, str) and provider.strip():
+                return resolve_binary(provider) is not None
+    return bool(enabled)
 
 
 def _prepare_command(
@@ -476,7 +503,7 @@ def _prepare_command(
 
 
 def _write_skip_note(project_root: Path, task_id: str, gate_name: str) -> Path:
-    skip_path = project_root / "ai" / "reviews" / f"{task_id}-{gate_name}-skipped.txt"
+    skip_path = project_layout(project_root).review_skip_file(task_id, gate_name)
     skip_path.parent.mkdir(parents=True, exist_ok=True)
     skip_path.write_text(
         f"No {gate_name} reviewers are enabled; reviewer execution was skipped by configuration.\n",
@@ -486,9 +513,10 @@ def _write_skip_note(project_root: Path, task_id: str, gate_name: str) -> Path:
 
 
 def _build_review_summary(project_root: Path, task_id: str) -> tuple[str, int]:
+    layout = project_layout(project_root)
     lines: list[str] = []
     total_findings = 0
-    for review_path in sorted((project_root / "ai" / "reviews").glob(f"{task_id}-*.json")):
+    for review_path in sorted(layout.reviews_root.glob(f"{task_id}-*.json")):
         try:
             payload = json.loads(review_path.read_text(encoding="utf-8"))
         except json.JSONDecodeError:
@@ -499,14 +527,14 @@ def _build_review_summary(project_root: Path, task_id: str) -> tuple[str, int]:
         findings = payload.get("findings") if isinstance(payload.get("findings"), list) else []
         total_findings += len(findings)
         lines.append(f"- {gate} / {reviewer}: {summary} ({len(findings)} findings)")
-    skipped = sorted((project_root / "ai" / "reviews").glob(f"{task_id}-*-skipped.txt"))
+    skipped = sorted(layout.reviews_root.glob(f"{task_id}-*-skipped.txt"))
     for skip_path in skipped:
         lines.append(f"- {skip_path.stem}: skipped by configuration")
     return ("\n".join(lines) if lines else "- no review outputs recorded"), total_findings
 
 
 def _build_review_inputs(project_root: Path, task_id: str) -> str:
-    review_dir = project_root / "ai" / "reviews"
+    review_dir = project_layout(project_root).reviews_root
     inputs = [
         path.relative_to(project_root).as_posix()
         for path in sorted(review_dir.glob(f"{task_id}-*"))
@@ -523,15 +551,16 @@ def _write_runtime_artifact(
     destination: Path,
     mapping: dict[str, object],
 ) -> None:
-    template_path = project_root / "ai" / "templates" / template_name
+    template_path = project_layout(project_root).runtime_template_file(template_name)
     content = render_runtime_text(template_path.read_text(encoding="utf-8"), mapping)
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(content, encoding="utf-8")
 
 
 def _cleanup_tmp(project_root: Path) -> list[str]:
+    layout = project_layout(project_root)
     cleaned: list[str] = []
-    tmp_path = project_root / "ai" / "tmp"
+    tmp_path = layout.tmp_root
     if tmp_path.exists():
         for child in tmp_path.iterdir():
             if child.is_dir():

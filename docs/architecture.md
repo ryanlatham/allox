@@ -13,9 +13,11 @@
 - `allox` is repo-scoped, not machine-scoped. It does not install or mutate user-level instruction files.
 - `AGENTS.md` is the canonical shared instruction file in generated projects.
 - `CLAUDE.md` and `GEMINI.md` are thin wrappers that keep hidden reviewer lanes aligned with `AGENTS.md`.
+- Visible workflow contract files live under `allox/`.
 - Managed files are tracked in `.allox/manifest.json`.
+- Runtime artifacts and wrapper scripts live under `.allox/`.
 - Section-managed files use explicit markers so upgrades can preserve user-owned sections.
-- Project-owned files such as `ai/config/project_commands.json` and `ai/config/review_redactions.json` are created once and then preserved.
+- Project-owned files such as `allox/config/project_commands.json` and `allox/config/review_redactions.json` are created once and then preserved.
 
 ## Three-gate workflow
 
@@ -37,3 +39,4 @@
 - Binary resolution is centralized so `allox` can honor `ALLOX_CODEX_BIN`, `ALLOX_CLAUDE_BIN`, and `ALLOX_GEMINI_BIN`.
 - `allox` also supports fallback discovery for common installs like `~/.nvm/versions/node/*/bin/gemini`.
 - When a wrapper binary is discovered outside the current non-interactive `PATH`, `allox` prepends the discovered runtime directory in memory for child commands.
+- The default reviewer config uses `enabled: "auto"` for built-in Claude and Gemini lanes, so gates key off `allox` resolution rather than `command -v` style shell checks.
