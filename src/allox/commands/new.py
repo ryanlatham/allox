@@ -20,7 +20,7 @@ _DRY_RUN_VERBS = {
 
 def build_parser(subparsers: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
     parser = subparsers.add_parser("new", help="Create a new allox-managed project")
-    parser.add_argument("path", help="Target project path")
+    parser.add_argument("path", nargs="?", default=".", help="Target project path (defaults to current directory)")
     parser.add_argument("--project-name", help="Human-readable project name")
     parser.add_argument("--template", default="default")
     parser.add_argument("--stack", default="generic")

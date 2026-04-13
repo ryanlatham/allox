@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import os
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
@@ -18,6 +19,21 @@ class CliNewTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             project_root = Path(temp_dir) / "demo"
             exit_code = main(["new", str(project_root), "--skip-doctor"])
+            self.assertEqual(0, exit_code)
+            self.assertTrue((project_root / ".allox" / "manifest.json").exists())
+            self.assertTrue((project_root / "AGENTS.md").exists())
+            self.assertTrue((project_root / "scripts" / "ai" / "bootstrap_task.py").exists())
+
+    def test_new_defaults_to_current_working_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            project_root = Path(temp_dir)
+            original_cwd = Path.cwd()
+            try:
+                os.chdir(project_root)
+                exit_code = main(["new", "--skip-doctor"])
+            finally:
+                os.chdir(original_cwd)
+
             self.assertEqual(0, exit_code)
             self.assertTrue((project_root / ".allox" / "manifest.json").exists())
             self.assertTrue((project_root / "AGENTS.md").exists())

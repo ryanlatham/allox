@@ -8,6 +8,8 @@ allox new my-project --init-git
 cd my-project
 ```
 
+If you are already inside the target folder, `allox new` uses the current working directory by default.
+
 Then:
 
 1. Open the generated project in Codex.

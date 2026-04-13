@@ -23,12 +23,14 @@ allox new my-project --init-git
 cd my-project
 ```
 
+You can also run `allox new` with no path to scaffold the current working directory.
+
 Then open the generated project in Codex and start with [PROMPTS/CODEX_PROJECT_START.md](/Users/ryan/Development/allox/src/allox/assets/project_template/default/PROMPTS/CODEX_PROJECT_START.md).
 
 ## Commands
 
-- `allox new <path>` bootstraps a new project from the default template and aborts before writing if it detects file or folder conflicts.
-- `allox new <path> --dry-run` previews the planned create and append actions without writing anything.
+- `allox new [path]` bootstraps a new project from the default template and aborts before writing if it detects file or folder conflicts. If `path` is omitted, it uses the current working directory.
+- `allox new [path] --dry-run` previews the planned create and append actions without writing anything.
 - `allox doctor` checks local prerequisites and project health.
 - `allox doctor --online` checks provider-authenticated readiness for Codex, Claude, and Gemini.
 - `allox upgrade [path]` safely updates managed framework files.
