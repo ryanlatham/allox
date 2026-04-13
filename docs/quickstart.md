@@ -10,6 +10,6 @@ cd my-project
 
 If you are already inside the target folder, `allox new` uses the current working directory by default.
 
-Then open the generated project in Codex and start with `PROMPTS/CODEX_PROJECT_START.md`.
+Then open the generated project in Codex and work normally from your task, issue, or product spec.
 
-Codex should read the project contract and run the managed `allox` workflow from there, including task bootstrap and review gates.
+The generated project contract lets Codex handle task bootstrap and the managed review workflow behind the scenes.

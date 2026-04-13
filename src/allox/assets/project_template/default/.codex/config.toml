@@ -1,7 +1,8 @@
 # allox:begin managed
 # This project uses allox to keep Codex as the only visible runtime.
-# Prefer plan-first operation and use scripts/ai/*.py or allox project commands
-# for task bootstrap, review gates, closeout, and cleanup.
+# Opening the repo in Codex should be enough for normal development.
+# Use the allox project runtime when task bootstrap, review gates, closeout,
+# or cleanup are needed behind the scenes.
 # Avoid risky default approvals or network assumptions in this file.
 # allox:end managed
 

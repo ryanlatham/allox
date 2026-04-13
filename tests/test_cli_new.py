@@ -49,10 +49,13 @@ class CliNewTests(unittest.TestCase):
             self.assertEqual(0, exit_code)
             output = stdout.getvalue()
             self.assertIn(f"1. Open {project_root.resolve()} in Codex.", output)
-            self.assertIn("2. Start with PROMPTS/CODEX_PROJECT_START.md.", output)
-            self.assertIn("3. Let Codex follow the project contract and run the managed allox workflow.", output)
+            self.assertIn("2. Work with Codex normally from your task, issue, or spec.", output)
+            self.assertIn(
+                "3. Let the generated project contract handle task bootstrap and managed review orchestration.",
+                output,
+            )
+            self.assertNotIn("PROMPTS/CODEX_PROJECT_START.md", output)
             self.assertNotIn("Read AGENTS.md and docs/ai-workflow.md.", output)
-            self.assertNotIn("bootstrap the first task", output)
 
     def test_new_dry_run_reports_planned_changes_without_writing(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

@@ -153,11 +153,6 @@
       "render": true
     },
     {
-      "path": "PROMPTS/CODEX_PROJECT_START.md",
-      "ownership": "managed",
-      "render": true
-    },
-    {
       "path": "scripts/ai/doctor.py",
       "ownership": "managed"
     },

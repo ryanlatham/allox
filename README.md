@@ -1,6 +1,6 @@
 # allox
 
-`allox` is a reusable framework product for bootstrapping and maintaining Codex-led development repositories where Codex is the only visible runtime and Claude/Gemini act as hidden reviewer lanes.
+`allox` is a reusable framework product for bootstrapping and maintaining Codex-led development repositories, with Codex as the normal development surface and background review orchestration handled behind the scenes.
 
 ## Install
 
@@ -36,16 +36,16 @@ cd my-project
 
 You can also run `allox new` with no path to scaffold the current working directory.
 
-Then open the generated project in Codex and start with [PROMPTS/CODEX_PROJECT_START.md](/Users/ryan/Development/allox/src/allox/assets/project_template/default/PROMPTS/CODEX_PROJECT_START.md).
+Then open the generated project in Codex and work normally from your task, issue, or product spec.
 
-Codex should read the generated project contract and run the managed `allox` workflow from there.
+The generated project contract lets Codex bootstrap tasks and run the managed `allox` workflow behind the scenes.
 
 ## Commands
 
 - `allox new [path]` bootstraps a new project from the default template and aborts before writing if it detects file or folder conflicts. If `path` is omitted, it uses the current working directory.
 - `allox new [path] --dry-run` previews the planned create and append actions without writing anything.
 - `allox doctor` checks local prerequisites and project health.
-- `allox doctor --online` checks provider-authenticated readiness for Codex, Claude, and Gemini.
+- `allox doctor --online` checks provider-authenticated readiness for Codex plus the managed background reviewers.
 - `allox upgrade [path]` safely updates managed framework files.
 - `allox self-test` renders a temp project and validates the scaffold.
 

@@ -18,8 +18,8 @@ REQUIRED_FILES = [
     "CLAUDE.md",
     "GEMINI.md",
     ".codex/config.toml",
+    ".codex/README.md",
     "docs/ai-workflow.md",
-    "PROMPTS/CODEX_PROJECT_START.md",
     "scripts/ai/bootstrap_task.py",
 ]
 

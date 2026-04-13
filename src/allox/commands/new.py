@@ -102,8 +102,8 @@ def run(args: argparse.Namespace) -> int:
     print("")
     print("Next steps:")
     print(f"1. Open {target} in Codex.")
-    print("2. Start with PROMPTS/CODEX_PROJECT_START.md.")
-    print("3. Let Codex follow the project contract and run the managed allox workflow.")
+    print("2. Work with Codex normally from your task, issue, or spec.")
+    print("3. Let the generated project contract handle task bootstrap and managed review orchestration.")
     return 0
 
 

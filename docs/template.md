@@ -52,10 +52,9 @@ The default project template is designed so the generated repo is self-describin
 - `ai/tmp/`
   Temporary prompt files and worktree metadata. Cleaned during closeout and manual cleanup.
 
-## Kickoff And Runtime Entry Points
+## Internal Runtime Entry Points
 
-- `PROMPTS/CODEX_PROJECT_START.md`
-  Human-readable kickoff prompt for starting a new product build in Codex. It tells Codex how to enter the managed workflow. `managed`.
+- No dedicated kickoff prompt file is required in generated projects. Codex should start from the developer's normal request flow using `AGENTS.md` and the repo-local Codex defaults.
 - `scripts/ai/*.py`
   Thin Python shims for the internal workflow that call the installed `allox project ...` commands. They are convenience wrappers, not the canonical onboarding path. `managed`.
 
