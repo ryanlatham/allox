@@ -13,6 +13,7 @@ from .subprocesses import probe_binary, run_command
 
 ONLINE_TIMEOUT_SECONDS = 8.0
 GEMINI_ONLINE_TIMEOUT_SECONDS = 20.0
+GEMINI_ONLINE_MODEL = "gemini-2.5-flash"
 
 
 def collect_doctor_report(project_path: Path | None = None, online: bool = False) -> dict[str, object]:
@@ -126,7 +127,17 @@ def _probe_claude_online(path: str) -> dict[str, object]:
 
 def _probe_gemini_online(path: str) -> dict[str, object]:
     result = run_command(
-        [path, "--approval-mode", "plan", "--output-format", "text", "-p", "Reply with OK only."],
+        [
+            path,
+            "--approval-mode",
+            "plan",
+            "--output-format",
+            "text",
+            "-m",
+            GEMINI_ONLINE_MODEL,
+            "-p",
+            "Reply with OK only.",
+        ],
         timeout_seconds=GEMINI_ONLINE_TIMEOUT_SECONDS,
     )
     if result.returncode == 0:

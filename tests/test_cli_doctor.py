@@ -145,7 +145,7 @@ class CliDoctorTests(unittest.TestCase):
             self.assertFalse(report["binaries"]["gemini"]["online_ready"])
             self.assertEqual("probe_failed", report["binaries"]["gemini"]["auth_status"])
 
-    def test_doctor_online_uses_longer_timeout_for_gemini_probe(self) -> None:
+    def test_doctor_online_uses_explicit_fast_model_for_gemini_probe(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
             gemini_dir = temp_path / ".nvm" / "versions" / "node" / "v24.14.1" / "bin"
@@ -157,8 +157,16 @@ class CliDoctorTests(unittest.TestCase):
                 "if '--version' in args:\n"
                 "    print('gemini 0.37.1')\n"
                 "elif '-p' in args or '--prompt' in args:\n"
-                "    time.sleep(0.1)\n"
-                "    print('OK')\n"
+                "    model = None\n"
+                "    if '-m' in args:\n"
+                "        index = args.index('-m')\n"
+                "        model = args[index + 1] if len(args) > index + 1 else None\n"
+                "    if model == 'gemini-2.5-flash':\n"
+                "        time.sleep(0.1)\n"
+                "        print('OK')\n"
+                "    else:\n"
+                "        time.sleep(0.3)\n"
+                "        print('slow model')\n"
                 "else:\n"
                 "    raise SystemExit(1)\n",
             )
