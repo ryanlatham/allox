@@ -39,6 +39,21 @@ class CliNewTests(unittest.TestCase):
             self.assertTrue((project_root / "AGENTS.md").exists())
             self.assertTrue((project_root / "scripts" / "ai" / "bootstrap_task.py").exists())
 
+    def test_new_prints_human_minimal_next_steps(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            project_root = Path(temp_dir) / "demo"
+            stdout = io.StringIO()
+            with redirect_stdout(stdout):
+                exit_code = main(["new", str(project_root), "--skip-doctor"])
+
+            self.assertEqual(0, exit_code)
+            output = stdout.getvalue()
+            self.assertIn(f"1. Open {project_root.resolve()} in Codex.", output)
+            self.assertIn("2. Start with PROMPTS/CODEX_PROJECT_START.md.", output)
+            self.assertIn("3. Let Codex follow the project contract and run the managed allox workflow.", output)
+            self.assertNotIn("Read AGENTS.md and docs/ai-workflow.md.", output)
+            self.assertNotIn("bootstrap the first task", output)
+
     def test_new_dry_run_reports_planned_changes_without_writing(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             project_root = Path(temp_dir) / "demo"

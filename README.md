@@ -38,6 +38,8 @@ You can also run `allox new` with no path to scaffold the current working direct
 
 Then open the generated project in Codex and start with [PROMPTS/CODEX_PROJECT_START.md](/Users/ryan/Development/allox/src/allox/assets/project_template/default/PROMPTS/CODEX_PROJECT_START.md).
 
+Codex should read the generated project contract and run the managed `allox` workflow from there.
+
 ## Commands
 
 - `allox new [path]` bootstraps a new project from the default template and aborts before writing if it detects file or folder conflicts. If `path` is omitted, it uses the current working directory.
