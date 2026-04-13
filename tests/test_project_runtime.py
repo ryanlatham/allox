@@ -12,6 +12,7 @@ from unittest.mock import patch
 
 from allox.cli import main
 from allox.core.layout import project_layout
+from allox.core.runtime import _reviewer_is_enabled
 from allox.core.subprocesses import resolve_binary
 
 from tests.helpers import create_executable
@@ -221,6 +222,11 @@ class ProjectRuntimeTests(unittest.TestCase):
             self.assertTrue(review_path.exists())
             payload = json.loads(review_path.read_text(encoding="utf-8"))
             self.assertEqual("gemini ok", payload["summary"])
+
+    def test_auto_enabled_reviewer_without_provider_is_disabled(self) -> None:
+        self.assertFalse(_reviewer_is_enabled({"enabled": "auto"}))
+        self.assertFalse(_reviewer_is_enabled({"enabled": "auto", "provider": ""}))
+        self.assertFalse(_reviewer_is_enabled({"enabled": "auto", "provider": "   "}))
 
 
 if __name__ == "__main__":  # pragma: no cover

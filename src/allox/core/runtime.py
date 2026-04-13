@@ -473,8 +473,12 @@ def _reviewer_is_enabled(reviewer: dict[str, object]) -> bool:
             return True
         if normalized == "auto":
             provider = reviewer.get("provider")
-            if isinstance(provider, str) and provider.strip():
-                return resolve_binary(provider) is not None
+            if not isinstance(provider, str):
+                return False
+            provider_name = provider.strip()
+            if not provider_name:
+                return False
+            return resolve_binary(provider_name) is not None
     return bool(enabled)
 
 

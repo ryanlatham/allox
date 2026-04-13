@@ -87,6 +87,4 @@ The default project template wires built-in Claude and Gemini reviewer lanes wit
 
 ## Learn More
 
-The default project template wires built-in Claude and Gemini reviewer lanes with `enabled: "auto"`, so reviewer gates follow `allox`'s resolver instead of relying on raw shell `PATH` checks.
-
-See [docs/install.md](/Users/ryan/Development/allox/docs/install.md), [docs/development.md](/Users/ryan/Development/allox/docs/development.md), [docs/publishing.md](/Users/ryan/Development/allox/docs/publishing.md), [docs/quickstart.md](/Users/ryan/Development/allox/docs/quickstart.md), and [docs/architecture.md](/Users/ryan/Development/allox/docs/architecture.md) for more detail.
+See [docs/install.md](docs/install.md), [docs/development.md](docs/development.md), [docs/publishing.md](docs/publishing.md), [docs/quickstart.md](docs/quickstart.md), and [docs/architecture.md](docs/architecture.md) for more detail.

@@ -31,7 +31,7 @@ uv publish --check-url https://pypi.org/simple
 
 ## GitHub Trusted Publishing
 
-Trusted Publishing is the preferred release path for this repository. The workflow lives at [release.yml](/Users/ryan/Development/allox/.github/workflows/release.yml:1) and publishes only from Git tags that start with `v`.
+Trusted Publishing is the preferred release path for this repository. The workflow lives at [release.yml](../.github/workflows/release.yml) and publishes only from Git tags that start with `v`.
 
 ### One-time GitHub setup
 
