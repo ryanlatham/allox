@@ -4,7 +4,7 @@
 
 ## Local release checks
 
-Before any release, update the version in `pyproject.toml` and `src/allox/version.py`, then run:
+Before any release, update the version in `pyproject.toml`, `src/allox/version.py`, and the template `bundle_version` in `src/allox/assets/project_template/default/manifest.json`, then run:
 
 ```bash
 uv sync
