@@ -1,0 +1,161 @@
+{
+  "schema_version": 2,
+  "notes": [
+    "Populate this file with project-specific checks and reviewer commands before using reviewer gates.",
+    "Commands may be strings or argv arrays. Supported placeholders: {project_root}, {packet_path}, {prompt_path}, {prompt}.",
+    "Reviewer gates fail hard by default when required reviewers are not configured or unavailable.",
+    "Legacy projects may still use a top-level checks list. allox treats that legacy list as both milestone and final gate checks unless gate-specific checks are defined."
+  ],
+  "checks": {
+    "milestone_gate": [],
+    "final_gate": []
+  },
+  "reviewers": {
+    "plan_gate": [
+      {
+        "name": "claude-plan-critic",
+        "provider": "claude",
+        "enabled": false,
+        "command": [
+          "claude",
+          "-p",
+          "{prompt}"
+        ]
+      },
+      {
+        "name": "gemini-plan-critic",
+        "provider": "gemini",
+        "enabled": false,
+        "command": [
+          "gemini",
+          "-p",
+          "{prompt}"
+        ]
+      }
+    ],
+    "milestone_gate": [
+      {
+        "name": "claude-code-reviewer",
+        "provider": "claude",
+        "enabled": false,
+        "command": [
+          "claude",
+          "-p",
+          "{prompt}"
+        ]
+      },
+      {
+        "name": "claude-security-reviewer",
+        "provider": "claude",
+        "enabled": false,
+        "command": [
+          "claude",
+          "-p",
+          "{prompt}"
+        ]
+      },
+      {
+        "name": "claude-test-critic",
+        "provider": "claude",
+        "enabled": false,
+        "command": [
+          "claude",
+          "-p",
+          "{prompt}"
+        ]
+      },
+      {
+        "name": "gemini-architecture-reviewer",
+        "provider": "gemini",
+        "enabled": false,
+        "command": [
+          "gemini",
+          "-p",
+          "{prompt}"
+        ]
+      },
+      {
+        "name": "gemini-regression-reviewer",
+        "provider": "gemini",
+        "enabled": false,
+        "command": [
+          "gemini",
+          "-p",
+          "{prompt}"
+        ]
+      },
+      {
+        "name": "gemini-performance-reviewer",
+        "provider": "gemini",
+        "enabled": false,
+        "command": [
+          "gemini",
+          "-p",
+          "{prompt}"
+        ]
+      }
+    ],
+    "final_gate": [
+      {
+        "name": "claude-final-code-reviewer",
+        "provider": "claude",
+        "enabled": false,
+        "command": [
+          "claude",
+          "-p",
+          "{prompt}"
+        ]
+      },
+      {
+        "name": "claude-final-security-reviewer",
+        "provider": "claude",
+        "enabled": false,
+        "command": [
+          "claude",
+          "-p",
+          "{prompt}"
+        ]
+      },
+      {
+        "name": "claude-final-test-critic",
+        "provider": "claude",
+        "enabled": false,
+        "command": [
+          "claude",
+          "-p",
+          "{prompt}"
+        ]
+      },
+      {
+        "name": "gemini-final-architecture-reviewer",
+        "provider": "gemini",
+        "enabled": false,
+        "command": [
+          "gemini",
+          "-p",
+          "{prompt}"
+        ]
+      },
+      {
+        "name": "gemini-final-regression-reviewer",
+        "provider": "gemini",
+        "enabled": false,
+        "command": [
+          "gemini",
+          "-p",
+          "{prompt}"
+        ]
+      },
+      {
+        "name": "gemini-final-performance-reviewer",
+        "provider": "gemini",
+        "enabled": false,
+        "command": [
+          "gemini",
+          "-p",
+          "{prompt}"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+# allox:begin managed
+# This project uses allox to keep Codex as the only visible runtime.
+# Prefer plan-first operation and use scripts/ai/*.py or allox project commands
+# for task bootstrap, review gates, closeout, and cleanup.
+# Avoid risky default approvals or network assumptions in this file.
+# allox:end managed
+
+# Add project-local Codex configuration below this line.

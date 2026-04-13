@@ -1,0 +1,17 @@
+{
+  "excluded_globs": [
+    ".env",
+    ".env.*",
+    "*.pem",
+    "*.key",
+    "*.p12",
+    ".git/**",
+    "node_modules/**",
+    ".venv/**",
+    "build/**",
+    "dist/**",
+    "ai/archive/**",
+    "ai/tmp/**"
+  ],
+  "max_file_bytes": 200000
+}
