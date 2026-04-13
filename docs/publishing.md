@@ -57,8 +57,8 @@ The workflow uses the `pypi` GitHub environment, so the environment name in PyPI
 2. Create and push a version tag that matches `pyproject.toml` exactly. This tag push is the normal release trigger for this repository:
 
 ```bash
-git tag -a v0.1.1 -m v0.1.1
-git push origin v0.1.1
+git tag -a v0.1.2 -m v0.1.2
+git push origin v0.1.2
 ```
 
 3. GitHub Actions will:
